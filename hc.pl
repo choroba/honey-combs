@@ -3,6 +3,9 @@ use warnings;
 use strict;
 
 use Tk;
+use List::Util qw(shuffle);
+
+my @letters = (shuffle('A' .. 'Z'))[1 .. 20];
 
 sub altitude {
     sqrt(3/4) * shift;
@@ -21,12 +24,18 @@ sub poly6 {
 }
 
 sub comb {
-    my ($canvas, $fromx, $fromy, $color, $size) = @_;
-    for (my $x = $fromx; $x < 10 * $size; $x += 3 * $size) {
-        for (my $y = $fromy; $y < 10 * $size; $y += 2 * altitude($size)) {
+    my ($canvas, $fromx, $fromy, $size, $count) = @_;
+    for (my $x = $fromx; $x < 3 * $count * $size; $x += 3 * $size) {
+        for (my $y = $fromy; $y < 7.5 * $size; $y += 2 * altitude($size)) {
             $canvas->createPolygon(poly6($x, $y, $size),
-                                   -outline => 'blue',
-                                   -fill => $color);
+                                   -outline => 'black',
+                                   -fill    => 'yellow',
+                                   -width   => 2,
+                                  );
+            $canvas->createText($x, $y, -fill => 'red',
+                                        -text => shift @letters,
+                                        -font => "{sans} " . ($size * 0.9),
+                               );
         }
     }
 }
@@ -34,12 +43,12 @@ sub comb {
 my $size = 36;
 
 my $mw     = 'MainWindow'->new(-title => "Honeycombs");
-my $canvas = $mw->Canvas(-width  => 10 * $size,
-                         -height => 12 * $size,
+my $canvas = $mw->Canvas(-width  => 8 * $size,
+                         -height => 8 * $size,
                         )->pack;
 
-comb($canvas, $size,       $size,                   'yellow', $size);
-comb($canvas, $size * 2.5, $size + altitude($size), 'pink',   $size);
+comb($canvas, $size,       $size,                   $size, 3);
+comb($canvas, $size * 2.5, $size + altitude($size), $size, 2);
 
 
 $mw->Button(-text    => 'Quit',
