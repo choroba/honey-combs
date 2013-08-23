@@ -5,7 +5,7 @@ use strict;
 use Tk;
 
 sub altitude {
-    sqrt(3) * shift() / 2;
+    sqrt(3/4) * shift;
 }
 
 sub poly6 {
@@ -38,8 +38,8 @@ my $canvas = $mw->Canvas(-width  => 10 * $size,
                          -height => 12 * $size,
                         )->pack;
 
-comb($canvas, $size,       $size,               'yellow', $size);
-comb($canvas, $size * 2.5, sqrt($size)+altitude($size) * 2, 'pink',   $size);
+comb($canvas, $size,       $size,                   'yellow', $size);
+comb($canvas, $size * 2.5, $size + altitude($size), 'pink',   $size);
 
 
 $mw->Button(-text    => 'Quit',
