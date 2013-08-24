@@ -11,25 +11,25 @@ sub altitude {
 }
 
 
-sub poly6 {
-    my ($x, $y, $s) = @_;
-    my $v = altitude($s);
-    return ($x - $s,       $y,
-            $x - ($s / 2), $y - $v,
-            $x + ($s / 2), $y - $v,
-            $x + $s,       $y,
-            $x + ($s / 2), $y + $v,
-            $x - ($s / 2), $y + $v,
+sub polygon_coordinates {
+    my ($x, $y, $size) = @_;
+    my $alt = altitude($size);
+    return ($x - $size,       $y,
+            $x - ($size / 2), $y - $alt,
+            $x + ($size / 2), $y - $alt,
+            $x + $size,       $y,
+            $x + ($size / 2), $y + $alt,
+            $x - ($size / 2), $y + $alt,
            );
 }
 
 
 {   my %changed;
     sub change {
-        my ($canvas, $id, $lid) = @_;
+        my ($canvas, $id, $letter_id) = @_;
         return sub {
-            $canvas->itemconfigure($id,  -fill => 'pink');
-            $canvas->itemconfigure($lid, -fill => 'black');
+            $canvas->itemconfigure($id,        -fill => 'magenta');
+            $canvas->itemconfigure($letter_id, -fill => 'black');
             undef $changed{$id};
 
             if (20 == keys %changed) {
@@ -48,18 +48,23 @@ sub poly6 {
         my ($canvas, $fromx, $fromy, $size, $count) = @_;
         for (my $x = $fromx; $x < 3 * $count * $size; $x += 3 * $size) {
             for (my $y = $fromy; $y < 7.5 * $size; $y += 2 * altitude($size)) {
-                my $id = $canvas->createPolygon(poly6($x, $y, $size),
-                                                -outline => 'black',
-                                                -fill    => 'yellow',
-                                                -width   => 2,
-                                      );
+                my $id = $canvas->createPolygon(
+                                      polygon_coordinates($x, $y, $size),
+                                      -outline => 'black',
+                                      -fill    => 'yellow',
+                                      -width   => 2,
+                                  );
                 my $letter = shift @letters;
-                my $lid = $canvas->createText($x, $y, -fill => 'red',
-                                            -text => $letter,
-                                            -font => "{sans} " . ($size * 0.9),
-                                   );
-                $canvas->MainWindow->bind('all', lc $letter, change($canvas, $id, $lid));
-                $canvas->bind($_, '<Button-1>', change($canvas, $id, $lid)) for $id, $lid;
+                my $letter_id = $canvas->createText($x, $y,
+                                         -fill => 'red',
+                                         -text => $letter,
+                                         -font => "{sans} " . ($size * 0.9),
+                                     );
+                $canvas->MainWindow->bind('all', lc $letter,
+                                          change($canvas, $id, $letter_id));
+                $canvas->bind($_, '<Button-1>',
+                              change($canvas, $id, $letter_id))
+                    for $id, $letter_id;
             }
         }
     }
